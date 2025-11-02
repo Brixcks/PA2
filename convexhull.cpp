@@ -36,6 +36,45 @@ void SortByAngle(vector<pair<double, double>>& v) {
     //search for the point given in step 1
     //set pair to found point
     //too lazy to write the rest since it's kinda obvious
+    //smallest y-coordinate in the vector
+    double minY = INFINITY;
+    //smallest pair in the vector
+    pair<double, double> minPair = v[0];
+    //index of the chose pair
+    int mindex = 0;
+    for (size_t i = 0; i < v.size(); i++) {
+        if (v[i].second < minY) {
+            minPair = v[i];
+            minY = v[i].second;
+            mindex = i;
+        } else if (v[i].second == minY) {
+            if (v[i].first < minPair.first) {
+                minPair = v[i];
+                minY = v[i].second;
+                mindex = i;
+            }
+        }
+    }
+    pair<double, double> swapling = v[0];
+    v[0] = minPair;
+    v[mindex] = swapling;
+    //Option 1 for sorting by angle
+    //making a vector of the rest of the elements to run mergesort on
+    vector<pair<double, double>> restofv;
+    for (size_t i = 1; i < v.size(); i++) {
+        restofv.push_back(v[i]);
+    }
+
+    //Option 2 for sorting by angle
+}
+
+//Mergesort
+void Manglesort(vector<pair<double, double>>& vec, int lo, int hi) {
+    
+}
+
+void Merge(vector<pair<double, double>>& vec, int lo, int hi) {
+
 }
 
 /**
@@ -44,7 +83,14 @@ void SortByAngle(vector<pair<double, double>>& v) {
 bool CCW(pair<double, double> p1, pair<double, double> p2, pair<double, double> p3) {
 	/* Replace the line below with your code */
     //refer to geeksforgeeks code found
+    //access values with p1.first and p1.second...
 	return false; // REPLACE THIS STUB
+    double v = p1.first * (p2.second - p3.second) + 
+               p2.first * (p3.second - p1.second) + 
+               p3.first * (p1.second - p2.second);
+    if (v < 0) return -1; 
+    if (v > 0) return +1; 
+    return 0;
 }
 
 /**
@@ -64,3 +110,4 @@ vector<pair<double, double>> GetConvexHull(vector<pair<double, double>>& v) {
 
 	return hull;
 }
+
