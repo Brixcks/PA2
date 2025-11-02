@@ -31,14 +31,9 @@
  * NOTE: "smallest" y-coordinate is actually closest to the TOP of a PNG image.
 **/
 void SortByAngle(vector<pair<double, double>>& v) {
-	/* Add your code below */
-	//make a local pair initialized to v[0]
-    //search for the point given in step 1
-    //set pair to found point
-    //too lazy to write the rest since it's kinda obvious
     //smallest y-coordinate in the vector
     double minY = INFINITY;
-    //smallest pair in the vector
+    //smallest pair in the vector intialized with v[0] as a dummy value
     pair<double, double> minPair = v[0];
     //index of the chose pair
     int mindex = 0;
@@ -58,39 +53,67 @@ void SortByAngle(vector<pair<double, double>>& v) {
     pair<double, double> swapling = v[0];
     v[0] = minPair;
     v[mindex] = swapling;
-    //Option 1 for sorting by angle
-    //making a vector of the rest of the elements to run mergesort on
-    vector<pair<double, double>> restofv;
-    for (size_t i = 1; i < v.size(); i++) {
-        restofv.push_back(v[i]);
+    //mergesort by angle relative to v[0]
+    Manglesort(v);
+}
+
+//applies mergesort over everything past v[0]
+void Manglesort(vector<pair<double, double>>& v) {
+    Msort(v, 1, v.size() - 1);
+}
+
+//Mergesort comparing by angle with respect to v[0]
+void Msort(vector<pair<double, double>>& v, int lo, int hi) {
+    if (lo < hi) {
+        int mid = (lo + hi)/2;
+        Msort(v, lo, mid);
+        Msort(v, mid + 1, hi);
+        Mangle(v, lo, mid, hi);
     }
-
-    //Option 2 for sorting by angle
 }
 
-//Mergesort
-void Manglesort(vector<pair<double, double>>& vec, int lo, int hi) {
-    
+//gets the angle between v[0] and the given point in degrees
+float getAngle(pair<double, double> p1, pair<double, double> p2) {
+    double deltaX = (p2.first - p1.first);
+    double deltaY = (p2.second - p1.second);
+    float angle = atan2(deltaY, deltaX) * 180 / 3.14159;
+    //return the inverted angle due to y being inverted
+    return (angle * -1);
 }
 
-void Merge(vector<pair<double, double>>& vec, int lo, int hi) {
-
+//Merges subarrays while sorting by angle with respect to v[0]
+void Mangle(vector<pair<double, double>>& v, int lo, int mid, int hi) {
+    vector<pair<double, double>> temp;
+    int a = lo;
+    int b = mid + 1;
+    for (int i = lo; i <= hi; i++) {
+        //calculate angles for a and b with respect to v[0]
+        float angleA = getAngle(v[0], v[a]);
+        float angleB = getAngle(v[0], v[b]);
+        if (a <= mid && (b > hi || angleA < angleB)) {
+            temp.push_back(v[a++]);
+        } else {
+            temp.push_back(v[b++]);
+        }
+    }
+    for (int j = lo; j <= hi; j++) {
+        v[j] = temp[j-lo];
+    }
 }
 
 /**
  * Determines whether a path from p1 to p2 to p3 describes a counterclockwise turn
 **/
 bool CCW(pair<double, double> p1, pair<double, double> p2, pair<double, double> p3) {
-	/* Replace the line below with your code */
-    //refer to geeksforgeeks code found
     //access values with p1.first and p1.second...
-	return false; // REPLACE THIS STUB
     double v = p1.first * (p2.second - p3.second) + 
                p2.first * (p3.second - p1.second) + 
                p3.first * (p1.second - p2.second);
-    if (v < 0) return -1; 
-    if (v > 0) return +1; 
-    return 0;
+    if (v < 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /**
@@ -104,10 +127,9 @@ bool CCW(pair<double, double> p1, pair<double, double> p2, pair<double, double> 
 **/
 vector<pair<double, double>> GetConvexHull(vector<pair<double, double>>& v) {
 	vector<pair<double, double>> hull;
-
+    SortByAngle(v);
 	/* Add your code below */
 
 
 	return hull;
 }
-
