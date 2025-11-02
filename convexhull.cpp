@@ -10,6 +10,7 @@
 **/
 
 #include "convexhull.h"
+#include "stack.cpp"
 
 /***************************************************
 * IF YOU WISH TO DEFINE YOUR OWN CUSTOM FUNCTIONS, *
@@ -32,13 +33,13 @@
 **/
 void SortByAngle(vector<pair<double, double>>& v) {
     //smallest y-coordinate in the vector
-    double minY = INFINITY;
+    double minY = -INFINITY;
     //smallest pair in the vector intialized with v[0] as a dummy value
     pair<double, double> minPair = v[0];
     //index of the chose pair
     int mindex = 0;
     for (size_t i = 0; i < v.size(); i++) {
-        if (v[i].second < minY) {
+        if (v[i].second > minY) {
             minPair = v[i];
             minY = v[i].second;
             mindex = i;
@@ -76,6 +77,7 @@ void Msort(vector<pair<double, double>>& v, int lo, int hi) {
 float getAngle(pair<double, double> p1, pair<double, double> p2) {
     double deltaX = (p2.first - p1.first);
     double deltaY = (p2.second - p1.second);
+    //I hope pi to 5 decimals is enough for accurate angles
     float angle = atan2(deltaY, deltaX) * 180 / 3.14159;
     //return the inverted angle due to y being inverted
     return (angle * -1);
@@ -116,6 +118,19 @@ bool CCW(pair<double, double> p1, pair<double, double> p2, pair<double, double> 
     }
 }
 
+//Determines whether a path between 3 points is collinear
+bool Collin(pair<double, double> p1, pair<double, double> p2, pair<double, double> p3) {
+    //access values with p1.first and p1.second...
+    double v = p1.first * (p2.second - p3.second) + 
+               p2.first * (p3.second - p1.second) + 
+               p3.first * (p1.second - p2.second);
+    if (v == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /**
  * Returns a vector of points representing the convex hull of v
  * if c is the vector representing the convex hull, then c[k], c[k+1]
@@ -128,8 +143,80 @@ bool CCW(pair<double, double> p1, pair<double, double> p2, pair<double, double> 
 vector<pair<double, double>> GetConvexHull(vector<pair<double, double>>& v) {
 	vector<pair<double, double>> hull;
     SortByAngle(v);
-	/* Add your code below */
-
-
+    hull.push_back(v[0]);
+    hull.push_back(v[1]);
+    hull.push_back(v[2]);
+    //using a stack to dynamically store points added so far
+    Stack<pair<double, double>> hullStack = new Stack();
+    hullStack.Push(v[0]);
+    hullStack.Push(v[1]);
+    hullStack.Push(v[2]);
+    //stack to keep track of all elements before prev
+    Stack<pair<double, double>> prevStack = new Stack();
+    hullStack.Push(v[0]);
+    //point immediately before prev in the hull
+    pair<double, double> beforePrev;
+    //point immediately before the current considered point for the hull
+    pair<double, double> prev = v[1];
+    //the currently considered point for the hull
+    pair<double, double> curr = v[2];
+    int nextIndex = 3;
+    //the point for consideration if curr is accepted
+    pair<double, double> next;
+    if (nextIndex == v.size()) {
+        next = v[0];
+        nextIndex == 0;
+    } else {
+        next = v[nextIndex];
+    }
+    //iterate over the list until a final comparison where 
+    //next is v[0] and the turn is either ccw or collinear
+    //signalling the end of the convexhull
+    while (next != v[0] && (!CCW(prev, curr, next) || !Collin(prev, curr, next))) {
+        //check ccw
+        if (CCW(prev, curr, next)) {
+            //check collinearity
+            if (Collin(prev, curr, next)) {
+                //add next to hull
+                hullStack.Push(next);
+                hull.push_back(next);
+                curr = hullStack.Peek();
+                //check then increment next
+                nextIndex++;
+                if (nextIndex == v.size()) {
+                    next = v[0];
+                    nextIndex == 0;
+                } else {
+                    next = v[nextIndex];
+                }
+                //no change to prev
+            } else {
+                //if ccw, add curr to hull
+                hullStack.Push(curr);
+                hull.push_back(curr);
+                prevStack.Push(prev);
+                prev = curr;
+                curr = next;
+                //check then increment next
+                nextIndex++;
+                if (nextIndex == v.size()) {
+                    next = v[0];
+                    nextIndex == 0;
+                } else {
+                    next = v[nextIndex];
+                }
+            }
+        } else {
+            //if not cww, pop_back hull
+            hullStack.Pop();
+            hull.pop_back();
+            curr = hullStack.Peek();
+            //change prev to the preceding value in the hull
+            prev = prevStack.Peek();
+            //pop prevStack since its top value is now prev
+            prevStack.Pop();
+            //no change to next
+        }
+    }
 	return hull;
 }
