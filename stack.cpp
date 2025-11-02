@@ -11,11 +11,19 @@
  * be DEFAULTCAPACITY defined in stack.h.
 **/
 template <class T>
+#include "stack.h"
+
+//array for initialization
+pair<double, double> stack[DEFAULTCAPACITY];
+//the index of the top of the stack
+int top;
+
 Stack<T>::Stack()
 {
-	// complete your implementation below
-	//use array of size defaultcapacity
-    //top is a local variable that is the index of the top element (starts at -1)
+    top = -1;
+    items = stack;
+    max_items = DEFAULTCAPACITY;
+    num_items = 0;
 }
 
 /**
@@ -24,8 +32,7 @@ Stack<T>::Stack()
 template <class T>
 Stack<T>::~Stack()
 {
-	// complete your implementation below
-	
+	delete[] stack;
 }
 
 /**
@@ -40,14 +47,12 @@ Stack<T>::~Stack()
 **/
 template <class T>
 void Stack<T>::Push(const T& item) {
-	// complete your implementation below
-    //if top+1 == size then resize
-    //make new array of size array.size()*EXPANSIONFACTOR
-    //copy all non-empty cells
-    //delete current array
-    //replace with new one
-	//add item to array[top + 1]
-
+    if ((top + 1) == max_items) {
+        Resize(max_items*EXPANSIONFACTOR);
+    }
+    items[top + 1] = item;
+    top++;
+    num_items++;
 }
 
 /**
@@ -62,14 +67,19 @@ void Stack<T>::Push(const T& item) {
 **/
 template <class T>
 T Stack<T>::Pop() {
-	// complete your implementation below
-    //store array[top] as a local to be returned
-    //empty array[top]
-    //top--
-    //if size() < 1.0/shrinkrate then resize to max(max_items, EXPANSIONFACTOR, DEFAULT CAPACITY)
-    //return local variable
-	T item;      // REPLACE THESE LINES
-	return item; // REPLACE THESE LINES
+	pair<double, double> returnItem = stack[top];
+    pair<double, double> newstack[max_items];
+    for (i = 0; i < top; i++) {
+        newstack[i] = items[i];
+    }
+    items = newstack;
+    top--;
+    num_items--;
+    if (Size() <= (1.0/SHRINKRATE)) {
+        int shrinkSize = max({max_items, EXPANSIONFACTOR, DEFAULTCAPACITY});
+        Resize(shrinkSize);
+    }
+    return returnItem
 }
 
 /**
@@ -79,10 +89,7 @@ T Stack<T>::Pop() {
 template <class T>
 void Stack<T>::Add(const T& item)
 {
-	// complete your implementation below
-	// Hint: this should call another Stack function
-	//   to add the element to the Stack.
-	//push(item)
+    Push(item);
 }
 
 /**
@@ -94,13 +101,7 @@ void Stack<T>::Add(const T& item)
 template <class T>
 T Stack<T>::Remove()
 {
-	// complete your implementation below
-	// Hint: this should call another Stack function
-	//   to remove an element from the Stack and return it.
-    //pop(item)
-
-	T item;      // REPLACE THESE LINES
-	return item; // REPLACE THESE LINES
+	Pop(item);
 }
 
 /**
@@ -113,10 +114,7 @@ T Stack<T>::Remove()
 **/
 template <class T>
 T Stack<T>::Peek() {
-	// complete your implementation below
-    //return array[top]
-	T item;      // REPLACE THESE LINES
-	return item; // REPLACE THESE LINES
+	return items[top];
 }
 
 /**
@@ -126,11 +124,7 @@ T Stack<T>::Peek() {
 **/
 template <class T>
 bool Stack<T>::IsEmpty() const {
-	// complete your implementation below
-    //local variable empt initialized to true
-    //if size() > 0 set empt to false
-    //return empt
-	return true; // REPLACE THIS STUB
+	return (top == -1); 
 }
 
 /**
@@ -143,9 +137,7 @@ bool Stack<T>::IsEmpty() const {
 **/
 template <class T>
 size_t Stack<T>::Capacity() const {
-	// complete your implementation below
-    //return array.size()
-	return 0; // REPLACE THIS STUB
+	return max_items;
 }
 
 /**
@@ -154,13 +146,7 @@ size_t Stack<T>::Capacity() const {
 **/
 template <class T>
 size_t Stack<T>::Size() const {
-	/* Add your code below */
-    //local int itemCount initialized to 0
-    //runs through 0 -> array.size() - 1
-    //increments itemCount by 1 if array[i] is not empty
-    //returns itemCount when encountering an empty cell
-    //return itemCount after looping
-	return 0; // REPLACE THIS STUB
+	return num_items;
 }
 
 /**
@@ -172,6 +158,11 @@ size_t Stack<T>::Size() const {
 **/
 template <class T>
 void Stack<T>::Resize(size_t n) {
-	/* Add your code below */
-	//do the thing
+    pair<double, double> resizedstack[n];
+    for (i = 0; i <= top; i++) {
+        resizedstack[i] = items[i];
+    }
+    delete[] items;
+    items = resizedstack;
+    max_items = n;
 }
