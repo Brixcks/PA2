@@ -72,18 +72,13 @@ void Stack<T>::Push(const T& item) {
 template <class T>
 T Stack<T>::Pop() {
 	pair<double, double> returnItem = stack[top];
-    pair<double, double> newstack[max_items];
-    for (i = 0; i < top; i++) {
-        newstack[i] = items[i];
-    }
-    items = newstack;
     top--;
     num_items--;
     if (Size() <= (1.0/SHRINKRATE)) {
         int shrinkSize = max({max_items, EXPANSIONFACTOR, DEFAULTCAPACITY});
         Resize(shrinkSize);
     }
-    return returnItem
+    return returnItem;
 }
 
 /**
