@@ -33,6 +33,10 @@ template <class T>
 Stack<T>::~Stack()
 {
 	delete[] stack;
+    delete[] items;
+    delete top;
+    delete num_items;
+    delete max_items;
 }
 
 /**
