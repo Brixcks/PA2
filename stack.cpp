@@ -13,15 +13,13 @@
 template <class T>
 #include "stack.h"
 
-//array for initialization
-pair<double, double> stack[DEFAULTCAPACITY];
 //the index of the top of the stack
 int top;
 
 Stack<T>::Stack()
 {
     top = -1;
-    items = stack;
+    items[DEFAULTCAPACITY];
     max_items = DEFAULTCAPACITY;
     num_items = 0;
 }
@@ -32,7 +30,6 @@ Stack<T>::Stack()
 template <class T>
 Stack<T>::~Stack()
 {
-	delete[] stack;
     delete[] items;
     delete top;
     delete num_items;
